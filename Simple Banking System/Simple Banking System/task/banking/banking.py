@@ -7,12 +7,35 @@ class Account:
     def __init__(self):
         sample_list = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
         account_number = str(random.sample(sample_list, 9))
-        checksum = str(random.sample(sample_list, 1))
-        self.card_number = '400000' + str(account_number.strip("[]") + checksum.strip("[]")) \
-            .replace(',', '').replace(' ', '')
+        card_number = '400000' + str(account_number.strip("[]")).replace(',', '').replace(' ', '')
+        checksum = Account.generate_checksum(self, int(card_number))
+        # checking if the checksum is only 1 digit, if not, randomly generate the identifier again
+        while checksum > 9:
+            account_number = str(random.sample(sample_list, 9))
+            card_number = '400000' + str(account_number.strip("[]")).replace(',', '').replace(' ', '')
+            checksum = Account.generate_checksum(self, int(card_number))
+        self.card_number = card_number + str(checksum)
         self.pin = str(random.sample(sample_list, 4)) \
             .strip("[]").replace(',', '').replace(' ', '')
         self.balance = 0
+
+
+    def generate_checksum(self, identifier):
+        # multiply the odd digits by 2
+        identifier_lst = list(map(int, str(identifier)))
+        for i, val in enumerate(identifier_lst):
+            if i % 2 == 0:
+                identifier_lst[i] = identifier_lst[i] * 2
+        # subtract 9 from numbers over 9
+        for i, val in enumerate(identifier_lst):
+            if val > 9:
+                identifier_lst[i] = val - 9
+        # add all numbers
+        sum_of_digits = 0
+        for i, val in enumerate(identifier_lst):
+            sum_of_digits += val
+        checksum = 10 - (sum_of_digits % 10)
+        return checksum
 
     def get_card_number(self):
         return self.card_number
