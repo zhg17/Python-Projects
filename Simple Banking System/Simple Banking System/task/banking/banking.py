@@ -72,10 +72,8 @@ class System:
             if choice == 1:
                 System.create_account(self)
             elif choice == 2:
-                print("Enter your card number:")
-                card_num = input()
-                print("Enter your PIN:")
-                pin = input()
+                card_num = input("Enter your card number:")
+                pin = input("Enter your PIN:")
                 System.login_account(self, card_num, pin)
             else:
                 print('Bye!')
@@ -83,8 +81,6 @@ class System:
 
     def create_account(self):
         new_account = Account()
-        self.all_accounts.append(new_account)
-        self.accounts_info[new_account.get_card_number()] = new_account
         self.curr.execute(
             f"INSERT INTO card(number, pin, balance) VALUES({new_account.get_card_number()}, {new_account.get_pin()}, 0)")
         self.conn.commit()
@@ -99,7 +95,8 @@ class System:
             if ele[1] == card_number:
                 if ele[2] == pin:
                     return True
-        return False
+                else:
+                    return False
 
     def login_account(self, card_number, pin):
         successful = System.check_account(self, card_number, pin)
@@ -109,21 +106,82 @@ class System:
             print("You have successfully logged in!")
             System.logged_in(self, card_number)
 
-    def logged_in(self, card_number):
+    def add_income(self, card_number, income):
+        self.curr.execute(f'SELECT * FROM card WHERE number = {card_number}')
+        temp = self.curr.fetchall()
+        self.curr.execute(f'UPDATE card SET balance = {temp[0][3] + int(income)} WHERE number = {card_number}')
+        self.conn.commit()
+
+    def check_checksum(self, card_number):
+        checksum = card_number[-1]
+        identifier = card_number.rstrip(card_number[-1])
+        if generate_checksum(identifier) == checksum:
+            return True
+        else:
+            return False
+
+    def check_receiver(self, card_number):
+        self.curr.execute('SELECT * FROM card')
+        for ele in self.curr.fetchall():
+            if ele[1] == card_number:
+                return True
+        return False
+
+    def get_balance(self, card_number):
         self.curr.execute(f'SELECT * FROM card WHERE number = {card_number}')
         card = self.curr.fetchall()
-        print("1. Balance")
-        print("2. Log out")
-        print("0. Exit")
-        choice = input()
-        if choice == 1:
-            print("Balance:", card[0][3])
-        elif choice == 2:
-            print('You have successfully logged out!')
-            System.start_system(self)
+        balance = card[0][3]
+        return balance
+
+    def subtract_income(self, card_number, amount):
+        self.curr.execute(f'SELECT * FROM card WHERE number = {card_number}')
+        card = self.curr.fetchall()
+        self.curr.execute(f'UPDATE card SET balance = {card[0][3] - amount} WHERE number = {card_number}')
+        self.conn.commit()
+
+    def do_transfer(self, sender, receiver):
+        if not System.check_checksum(self, receiver):
+            print("Probably you made a mistake in the card number. Please try again!")
+        if not System.check_receiver(self, receiver):
+            print("Such a card does not exist.")
+        elif sender == receiver:
+            print("You can't transfer money to the same account!")
         else:
-            print('Bye!')
-            exit()
+            print("Enter how much money you want to transfer:")
+            amount = int(input())
+            curr_balance = System.get_balance(self, sender)
+            if curr_balance < amount:
+                print("Not enough money!")
+            else:
+                System.add_income(self, receiver, amount)
+                System.subtract_income(self, sender, amount)
+                print("Success!")
+
+    def logged_in(self, card_number):
+        while True:
+            self.curr.execute(f'SELECT * FROM card WHERE number = {card_number}')
+            card = self.curr.fetchall()
+            choice = input('1. Balance \n2. Add income\n3. Do transfer\n4. Close account\n5. Log out\n0. Exit\n')
+            if choice == '1':
+                print("Balance:", card[0][3])
+            elif choice == '2':
+                income = int(input('Enter income:'))
+                System.add_income(self, card_number, income)
+                print("Income was added!")
+            elif choice == '3':
+                receiver = input('Enter card number:')
+                System.do_transfer(self, card_number, receiver)
+            elif choice == '4':
+                self.curr.execute(f'DELETE FROM card WHERE number = {card_number}')
+                self.conn.commit()
+                print('The account has been closed!')
+                break
+            elif choice == '5':
+                print('You have successfully logged out!')
+                break
+            else:
+                print('Bye!')
+                exit()
 
 
 system = System()
