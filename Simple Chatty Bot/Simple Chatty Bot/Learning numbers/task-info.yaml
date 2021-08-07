@@ -96,5 +96,8 @@ files:
     print('Completed, have a nice day!')
   learner_created: false
 feedback_link: https://hyperskill.org/projects/97/stages/537/implement#comment
-status: Unchecked
-record: -1
+status: Solved
+feedback:
+  message: Congratulations!
+  time: Sat, 07 Aug 2021 22:22:05 UTC
+record: 4
