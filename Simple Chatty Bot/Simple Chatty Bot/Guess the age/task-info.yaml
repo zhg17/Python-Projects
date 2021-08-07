@@ -73,5 +73,8 @@ files:
     print("Your age is {your_age}; that's a good time to start programming!")
   learner_created: false
 feedback_link: https://hyperskill.org/projects/97/stages/536/implement#comment
-status: Unchecked
+status: Solved
+feedback:
+  message: Congratulations!
+  time: Sat, 07 Aug 2021 22:15:27 UTC
 record: -1
