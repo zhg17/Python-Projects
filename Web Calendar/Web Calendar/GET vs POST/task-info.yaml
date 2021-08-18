@@ -489,27 +489,12 @@ files:
     if __name__ == '__main__':
         ServerTest().run_tests()
   learner_created: false
+- name: events.db
+  visible: true
+  learner_created: true
 feedback_link: https://hyperskill.org/projects/170/stages/882/implement#comment
-status: Failed
+status: Solved
 feedback:
-  message: |-
-    Wrong answer in test #1
-
-    After making a correct POST request for '/event' URL the server should return HTTP status code 200
-
-    Please find below the output of your program during this failed test.
-
-    ---
-
-    stdout:
-    * Serving Flask app 'app' (lazy loading)
-     * Environment: production
-       WARNING: This is a development server. Do not use it in a production deployment.
-       Use a production WSGI server instead.
-     * Debug mode: off
-
-    stderr:
-    * Running on http://localhost:8000/ (Press CTRL+C to quit)
-    127.0.0.1 - - [17/Aug/2021 16:15:17] "
-  time: Tue, 17 Aug 2021 20:15:17 UTC
-record: -1
+  message: Congratulations!
+  time: Wed, 18 Aug 2021 19:47:19 UTC
+record: 2
