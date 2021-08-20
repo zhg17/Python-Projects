@@ -507,6 +507,35 @@ files:
     if __name__ == '__main__':
         ServerTest().run_tests()
   learner_created: false
+- name: events.db
+  visible: true
+  learner_created: true
 feedback_link: https://hyperskill.org/projects/170/stages/884/implement#comment
-status: Unchecked
+status: Failed
+feedback:
+  message: |-
+    Wrong answer in test #5
+
+    Expected only one event in a range from 2021-08-29 to 2021-08-31
+
+    Please find below the output of your program during this failed test.
+
+    ---
+
+    stdout:
+    * Serving Flask app 'app' (lazy loading)
+     * Environment: production
+       WARNING: This is a development server. Do not use it in a production deployment.
+       Use a production WSGI server instead.
+     * Debug mode: off
+
+    stderr:
+    /Users/ian/Desktop/Web Calendar/.idea/VirtualEnvironment/lib/python3.9/site-packages/flask_sqlalchemy/__init__.py:851: UserWarning: Neither SQLALCHEMY_DATABASE_URI nor SQLALCHEMY_BINDS is set. Defaulting SQLALCHEMY_DATABASE_URI to "sqlite:///:memory:".
+      warnings.warn(
+    /Users/ian/Desktop/Web Calendar/.idea/VirtualEnvironment/lib/python3.9/site-packages/flask_sqlalchemy/__init__.py:872: FSADeprecationWarning: SQLALCHEMY_TRACK_MODIFICATIONS adds significant overhead and will be disabled by default in the future.  Set it to True or False to suppress this warning.
+      warnings.warn(FSADeprecationWarning(
+     * Running on http://localhost:8000/ (Press CTRL+C to quit)
+    127.0.0.1 - - [20/Aug/2021 15:57:14] "POST /event HTTP/1.1" 200 -
+    127.0.0.1 - - [20/Aug/2021 15:57:14] "
+  time: Fri, 20 Aug 2021 19:57:15 UTC
 record: -1

@@ -3,7 +3,8 @@ from flask_restful import Resource, Api, inputs, reqparse, fields, marshal_with
 from flask_sqlalchemy import SQLAlchemy
 import sys
 from datetime import date
-
+from flask import abort, request
+import logging
 
 # Setting up
 app = Flask(__name__)
@@ -25,7 +26,7 @@ class Event(db.Model):
 resource_fields = {
     'id': fields.Integer,
     'event': fields.String,
-    'date': fields.String
+    'date': fields.DateTime(dt_format='iso8601')
 }
 
 # Parser for arguments
@@ -43,12 +44,30 @@ parser.add_argument(
     help="The event date with the correct format is required! The correct format is YYYY-MM-DD!",
     required=True
 )
+parser.add_argument(
+    'start_time',
+    type=inputs.date,
+    required=False
+)
+parser.add_argument(
+    'end_time',
+    type=inputs.date,
+    required=False
+)
 
 
 class EventResource(Resource):
     @marshal_with(resource_fields)
     def get(self):
-        return Event.query.all()
+        start = request.args.get("start_time")
+        end = request.args.get("end_time")
+        if start and end:
+            events = Event.query.filter(Event.date.between(start, end)).all()
+            if len(events) < 1:
+                abort(404, {"message": "The event doesn't exist!"})
+            return events
+        else:
+            return Event.query.all()
 
     def post(self):
         args = parser.parse_args()
@@ -58,13 +77,33 @@ class EventResource(Resource):
         response = {'message': 'The event has been added!', 'event': args['event'], 'date': str(args['date'].date())}
         return response
 
+
 class EventToday(Resource):
     @marshal_with(resource_fields)
     def get(self, get_date=date.today()):
         return Event.query.filter(Event.date == get_date).all()
 
+
+class EventByID(Resource):
+    @marshal_with(resource_fields)
+    def get(self, event_id):
+        event = Event.query.filter(Event.id == event_id).first()
+        if event is None:
+            abort(404, "The event doesn't exist!")
+        return event
+
+    def delete(self, event_id):
+        event = Event.query.filter(Event.id == event_id).first()
+        if event is None:
+            abort(404, "The event doesn't exist!")
+        db.session.delete(event)
+        db.session.commit()
+        return {'message': 'The event has been deleted!'}
+
+
 api.add_resource(EventResource, '/event')
 api.add_resource(EventToday, '/event/today')
+api.add_resource(EventByID, '/event/<int:id>')
 
 if __name__ == '__main__':
     if len(sys.argv) > 1:
@@ -72,3 +111,4 @@ if __name__ == '__main__':
         app.run(host=arg_host, port=arg_port)
     else:
         app.run()
+
