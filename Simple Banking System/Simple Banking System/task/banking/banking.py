@@ -1,6 +1,8 @@
 import random
 import sqlite3
 
+# testing
+
 
 def generate_checksum(identifier):
     # multiply the odd digits by 2
